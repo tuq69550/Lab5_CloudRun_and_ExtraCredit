@@ -176,6 +176,24 @@ After confirming the new version is stable, all traffic is routed to version 2. 
 
 The final test confirms that requests are now being handled by version 2 of the converter API. This verifies that the canary deployment successfully transitioned the service to the new version.
 
+
+## Architecture Diagrams
+
+### Lab 5 Microservice Architecture
+
+![Lab5 Architecture](screenshots/Lab5_diagram.png)
+
+This diagram shows the architecture that is used in Lab 5. A user sends a request to the public converter-api service that is running on Cloud Run through a REST/HTTP interface. The API then calls the private conversion-engine service using gRPC with IAM authentication, which then performs the conversion and returns the result back to the API as JSON.
+
+---
+
+### Extra Credit – Canary Deployment
+
+![Canary Deployment Diagram](screenshots/Lab5_ec_diagram.png)
+
+This diagram illustrates the canary deployment strategy implemented in the extra credit portion of the lab. Initially, only 10% of traffic is routed to the new v2, while the remaining 90% continues using the original v1 version. After monitoring the new version and confirming it works correctly, 100% of traffic is shifted to v2, completing the rollout.
+
+
 # Lab Reflection Questions
 
 ## 1. Statelessness and Serverless Platforms
@@ -186,7 +204,7 @@ Unit conversion is a stateless workload because each request contains all the in
 
 ## 2. Two Interfaces, Two Audiences
 
-The public REST interface is defined by the HTTP endpoints exposed by the converter API, such as the `/convert` route that accepts parameters and returns JSON responses. The internal gRPC interface is defined by the `.proto` contract used by the conversion engine, which specifies the request and response messages used between services. The intended audience for the REST API is external clients or users, while the gRPC interface is meant for internal service-to-service communication. Separating these contracts helps microservice systems stay modular because internal implementations can change without breaking the public interface used by clients.
+The public REST interface is defined by the HTTP endpoints exposed by the converter API, such as the /convert route that accepts parameters and returns JSON responses. The internal gRPC interface is defined by the .proto contract used by the conversion engine, which specifies the request and response messages used between services. The intended audience for the REST API is external clients or users, while the gRPC interface is meant for internal service-to-service communication. Separating these contracts helps microservice systems stay modular because internal implementations can change without breaking the public interface used by clients.
 
 ---
 
@@ -210,10 +228,10 @@ A cold start happens when Cloud Run needs to start a new container instance to h
 
 ## 6. Contracts and Evolution of Services
 
-The `.proto` file is stored in the repository because it defines the contract between services and acts as the source of truth for the API structure. The generated `_pb2.py` files are not stored because they can always be regenerated from the `.proto` file when needed. This approach helps services evolve safely over time because developers only need to update the contract and regenerate the code rather than manually maintaining generated files.
+The .proto file is stored in the repository because it defines the contract between services and acts as the source of truth for the API structure. The generated _pb2.py files are not stored because they can always be regenerated from the .proto file when needed. This approach helps services evolve safely over time because developers only need to update the contract and regenerate the code rather than manually maintaining generated files.
 
 ---
 
 ## 7. Microservice Boundaries and Extensibility
 
-When adding a new feature, the decision depends on the responsibility of each component in the system. If the feature changes how users interact with the service, it likely belongs in the public API, while internal processing logic would belong in the conversion engine. Changes that affect how services communicate should be reflected in the service contract defined by the `.proto` file. This structured separation helps teams extend systems without breaking existing functionality or disrupting other services.
+When adding a new feature, the decision depends on the authority of each component in the system. If the feature changes how users interact with the service, it likely belongs in the public API, while internal processing logic would belong in the conversion engine. Changes that affect how services communicate should be reflected in the service contract defined by the .proto file. This structured separation helps teams extend systems without breaking existing functionality or disrupting other services.
